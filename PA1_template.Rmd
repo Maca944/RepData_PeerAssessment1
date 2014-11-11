@@ -20,6 +20,7 @@ library(markdown) # dito for markdown, and the other packages
 library(plyr)
 library(lubridate)
 library(ggplot2)
+options(scipen = 3) #no scientific notation
 
 ```
 
@@ -78,12 +79,16 @@ act_all$weekday <- weekdays(act_all$date)
 act_all$weekday[act_all$weekday == "Saturday" | act_all$weekday =="Sunday"] <- "Weekend"
 act_all$weekday[act_all$weekday != "Weekend"] <- "Weekday"
 
-weekdays <- act_all[act_all$weekday=="Weekday",]
-weekends <- act_all[act_all$weekday=="Weekend",]
+act_all_mean <- ddply(act_all, c("interval", "weekday"), summarise, mean = mean(steps))
 
-par(mfrow=c(2,1))
-plot(ddply(weekdays, ~interval, summarise, mean = mean(steps)), type = "l")
-plot(ddply(weekends, ~interval, summarise, mean = mean(steps)), type = "l")
+plotweekdays <- ggplot(act_all_mean , aes(x=interval, y=mean))+
+        geom_line(colour="cornflowerblue", size = 0.75)+
+        theme(panel.background = element_blank(),
+             panel.border= element_rect(fill=NA, colour ="black", size = 0.5, linetype="solid"))+
+        facet_wrap(~weekday, ncol = 1)+
+        theme(strip.background = element_rect(fill="peachpuff"))+
+        labs(x= "Interval", y = "Number of steps")       
+print(plotweekdays)
 
 meandiff  <- meansteps - meanstepsall
 mediandiff <- mediansteps - medianstepsall

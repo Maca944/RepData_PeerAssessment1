@@ -2,11 +2,11 @@
 Maarten Caminada  
 Tuesday, November 11, 2014  
 
-## changing the work directory and loading the packages needed
+## Changing the work directory and loading the packages needed
 
 
 ```r
-wd <- "c:/maca/Rdata/RepRes1" #the directory where I unzipped the datafiles
+wd <- "c:/maca/Rdata/RepData_PeerAssessment1" #the directory where I unzipped the datafiles
 setwd(wd) #is now my working directory
 
 Sys.setlocale("LC_TIME", "C") # change timesettings to English
@@ -34,6 +34,7 @@ library(lubridate)
 
 ```r
 library(ggplot2)
+options(scipen = 3) #no scientific notation
 ```
 
 ## Loading and preprocessing the data
@@ -59,7 +60,7 @@ meansteps <- mean(totals$steps)
 mediansteps <- median(totals$steps)
 ```
 
-The mean number of steps is 1.0766189\times 10^{4}. The median number of steps is 10765.
+The mean number of steps is 10766.1886792. The median number of steps is 10765.
 
 ## What is the average daily activity pattern?
 
@@ -103,12 +104,16 @@ act_all$weekday <- weekdays(act_all$date)
 act_all$weekday[act_all$weekday == "Saturday" | act_all$weekday =="Sunday"] <- "Weekend"
 act_all$weekday[act_all$weekday != "Weekend"] <- "Weekday"
 
-weekdays <- act_all[act_all$weekday=="Weekday",]
-weekends <- act_all[act_all$weekday=="Weekend",]
+act_all_mean <- ddply(act_all, c("interval", "weekday"), summarise, mean = mean(steps))
 
-par(mfrow=c(2,1))
-plot(ddply(weekdays, ~interval, summarise, mean = mean(steps)), type = "l")
-plot(ddply(weekends, ~interval, summarise, mean = mean(steps)), type = "l")
+plotweekdays <- ggplot(act_all_mean , aes(x=interval, y=mean))+
+        geom_line(colour="cornflowerblue", size = 0.75)+
+        theme(panel.background = element_blank(),
+             panel.border= element_rect(fill=NA, colour ="black", size = 0.5, linetype="solid"))+
+        facet_wrap(~weekday, ncol = 1)+
+        theme(strip.background = element_rect(fill="peachpuff"))+
+        labs(x= "Interval", y = "Number of steps")       
+print(plotweekdays)
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-6-1.png) 
@@ -118,5 +123,5 @@ meandiff  <- meansteps - meanstepsall
 mediandiff <- mediansteps - medianstepsall
 ```
 
-The difference between the mean of the first and second dataset is 1.0728806\times 10^{4}.
-The difference between the median of the first and second dataset is 1.0765\times 10^{4}.
+The difference between the mean of the first and second dataset is 10728.8060797.
+The difference between the median of the first and second dataset is 10765.

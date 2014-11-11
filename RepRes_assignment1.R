@@ -1,4 +1,4 @@
-wd <- "c:/maca/Rdata/RepRes1" #the directory where I unzipped the datafiles
+wd <- "c:/maca/Rdata/RepData_PeerAssessment1" #the directory where I unzipped the datafiles
 setwd(wd) #is now my working directory
 
 Sys.setlocale("LC_TIME", "C") # change timesettings to English, otherwise the names of the days appeared in Dutch
@@ -14,6 +14,8 @@ act_cc <- activity[complete.cases(activity),] #only use the rows without missing
 
 totals <- ddply(act_cc, .(date), summarize, steps=sum(steps))
 hist(totals$steps)
+meansteps <- mean(totals$steps)
+mediansteps <- median(totals$steps)
 ddply(act_cc, .(date), summarize, steps=mean(steps))
 ddply(act_cc, .(date), summarize, steps=median(steps))
 summary(act_cc) 
@@ -45,5 +47,23 @@ weekends <- act_all[act_all$weekday=="Weekend",]
 par(mfrow=c(2,1))
 plot(ddply(weekdays, ~interval, summarise, mean = mean(steps)), type = "l")
 plot(ddply(weekends, ~interval, summarise, mean = mean(steps)), type = "l")
+
+ff <- ddply(act_all, c("interval", "weekday"), summarise, mean = mean(steps))
+
+plotweekdays <- ggplot(ff, aes(x=interval, y=mean))+
+        geom_line(colour="cornflowerblue", size = 0.75)+
+        theme(panel.background = element_blank(),
+             panel.border= element_rect(fill=NA, colour ="black", size = 0.5, linetype="solid"))+
+        facet_wrap(~weekday, ncol = 1)+
+        theme(strip.background = element_rect(fill="peachpuff"))+
+        #facet_grid(weekday~.) +
+        labs(x= "Interval", y = "Number of steps")       
+print(plotweekdays)
+
+plot6 <- ggplot(NEI, aes(x=year, y = emission)) + # year on the x-axis, emission on the y-axis
+        theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5))+ # the years should be displayed vertically
+        facet_grid(~fips.) + # I want a plot per type
+        labs(title= "Emission for Motor Vehicles in Baltimore City and LA County")+
+        labs(x= "Interval", y = "Number of steps")+
 
         
